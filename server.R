@@ -74,7 +74,7 @@ shinyServer(function(input, output, session){
       scale_numeric("y", expand = 0.25, nice = TRUE, label = "RSSI") %>% 
       add_legend("stroke", title = "Access points (BSSID)") %>%
       hide_legend("fill") %>%
-      set_options(height = 240, renderer = "svg") %>%
+      set_options(renderer = "svg") %>%
       bind_shiny("rssi_plot")
   })
   
@@ -84,7 +84,7 @@ shinyServer(function(input, output, session){
       data.frame %>% 
       ggvis(~agrCtlRSSI) %>%
       layer_histograms() %>%
-      set_options(height = 240, renderer = "svg") %>%
+      set_options(renderer = "svg") %>%
     bind_shiny("hstgrm_plot")
   })
   
