@@ -18,7 +18,9 @@ shinyUI(fluidPage(
   
   sidebarPanel(
     navbarPage(
-      "Summary",
+      "Menu",
+      tabPanel("Info",
+               "Insert help informatio here."),
       navbarMenu(
         "Select View",
         tabPanel(

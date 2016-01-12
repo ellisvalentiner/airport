@@ -35,7 +35,7 @@ get_preferences <- function(){
 }
 
 data <- perform_scan()
-data <- data[1:30]
+#data <- data[1:30]
 
 shinyServer(function(input, output, session){
 
@@ -54,9 +54,7 @@ shinyServer(function(input, output, session){
   output$get_info <- renderTable({
     # `$ airport --getinfo`
     # Display current status
-    # Call the update data function
     invalidateLater(1000, session)
-    update_data()
     data[1,] %>% t
   })
   
@@ -67,12 +65,15 @@ shinyServer(function(input, output, session){
   
   output$RSSI <- renderPlot({
     invalidateLater(1000, session)
+    update_data()
     data[complete.cases(data)] %>%
       ggvis(~Time*60, ~agrCtlRSSI) %>%
-      layer_lines() %>%
-      layer_points() %>%
+      layer_lines(stroke = ~factor(BSSID)) %>%
+      layer_points(fill = ~factor(BSSID)) %>%
       scale_datetime("x", nice = "second", label = "Time") %>%
       scale_numeric("y", expand = 0.25, nice = TRUE, label = "RSSI") %>% 
+      add_legend("stroke", title = "Access points (BSSID)") %>%
+      hide_legend("fill") %>%
       set_options(height = 240, renderer = "svg") %>%
       bind_shiny("rssi_plot")
   })
