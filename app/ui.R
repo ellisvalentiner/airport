@@ -6,8 +6,10 @@ library(ggvis)
 library(magrittr)
 
 shinyUI(dashboardPage(
+  skin = "green",
   dashboardHeader(title = "WiFi dashboard"),
   dashboardSidebar(
+    width = 250,
     sidebarMenu(
       menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
       menuItem("Help", tabName = "help", icon = icon("question"))
@@ -21,17 +23,23 @@ shinyUI(dashboardPage(
                     width = 4,
                     tableOutput("get_info")),
                 
-                box(title = h4("RSSI"),
+                box(title = h4("Plot"),
                     width = 8,
-                    ggvisOutput("rssi_plot"),
-                    plotOutput("RSSI", height = 250),
-                    ggvisOutput("hstgrm_plot"),
-                    plotOutput("hstgrm", height = 250))
+                    selectInput("plot_select",
+                                label = "",
+                                choices = c("Signal" = "agrCtlRSSI",
+                                            "Noise" = "agrCtlNoise",
+                                            "Quality (SNR)" = "snr",
+                                            "Distance (meters)" = "distm")),
+                    HTML("<div style='height: 400px;'>"),
+                    ggvisOutput("dbm_plot"),
+                    plotOutput("dbm"),
+                    HTML("</div>"))
                 )
               ),
       tabItem(tabName = "help",
               fluidRow(
-                textOutput("help_text")
+                includeMarkdown("assets/help.md")
               ))
     )
   )

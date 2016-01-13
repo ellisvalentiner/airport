@@ -6,42 +6,15 @@ library(magrittr)
 
 rm(list = ls(all.names = TRUE))
 
-perform_scan <- function(){
-  x <- system2("airport", "-I", stdout=TRUE) %>%
-    gsub("^\\s+|$\\s+", "", .) %>%
-    strsplit(., ":")
-  keys = sapply(x, '[', 1) %>%
-    make.names %>%
-    c(., "Time")
-  values = sapply(x, '[', -1) %>%
-    lapply(., paste, collapse=":") %>% 
-    gsub("^\\s+|$\\s+", "", .) %>%
-    c(., Sys.time()) %>%
-    as.list
-  DT <- rapply(values, utils::type.convert, classes = "character", how = "replace", as.is = TRUE) %>%
-    rbind.data.frame %>%
-    data.table
-  setnames(DT, names(DT), keys)
-  return(DT)
-}
-
-get_preferences <- function(){
-  prefs <- system2("airport", "prefs", stdout=TRUE) %>%
-    .[3:10] %>%
-    strsplit("=") %>%
-    do.call(rbind, .)
-  colnames(prefs) <- c("Key", "Value")
-  return(prefs)
-}
+source(file = "../functions/foo.R")
 
 data <- perform_scan()
-#data <- data[1:30]
 
 shinyServer(function(input, output, session){
 
   # Update data
   update_data <- function(){
-    data <<- rbind(perform_scan(), data)
+    data <<- rbind(perform_scan(), data, fill=TRUE)
   }
   
   output$airport_perfs <- renderTable({
@@ -56,26 +29,26 @@ shinyServer(function(input, output, session){
     # Display current status
     invalidateLater(1000, session)
     data[1,] %>% t
-  })
+  }, include.colnames = FALSE)
   
   output$current_time <- renderText({
     invalidateLater(1000, session)
     format(Sys.time(), "%d %h %Y %H:%M:%S")
   })
   
-  output$RSSI <- renderPlot({
+  output$dbm <- renderPlot({
     invalidateLater(1000, session)
     update_data()
-    data[complete.cases(data)] %>%
-      ggvis(~Time*60, ~agrCtlRSSI) %>%
+    data[, yvar := get(input$plot_select)] %>%
+      ggvis(~Time*60, ~yvar) %>%
       layer_lines(stroke = ~factor(BSSID)) %>%
       layer_points(fill = ~factor(BSSID)) %>%
       scale_datetime("x", nice = "second", label = "Time") %>%
-      scale_numeric("y", expand = 0.25, nice = TRUE, label = "RSSI") %>% 
+      scale_numeric("y", expand = 0.25, nice = TRUE, label = "dBm") %>% 
       add_legend("stroke", title = "Access points (BSSID)") %>%
       hide_legend("fill") %>%
       set_options(renderer = "svg") %>%
-      bind_shiny("rssi_plot")
+      bind_shiny("dbm_plot")
   })
   
   output$hstgrm <- renderPlot({
@@ -84,7 +57,7 @@ shinyServer(function(input, output, session){
       data.frame %>% 
       ggvis(~agrCtlRSSI) %>%
       layer_histograms() %>%
-      set_options(renderer = "svg") %>%
+      set_options(height = 340, renderer = "svg") %>%
     bind_shiny("hstgrm_plot")
   })
   
