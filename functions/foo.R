@@ -35,7 +35,7 @@ perform_scan <- function(){
   values = sapply(x, '[', -1) %>%
     lapply(., paste, collapse=":") %>% 
     gsub("^\\s+|$\\s+", "", .) %>%
-    c(., as.ITime(Sys.time())) %>%
+    c(., as.ITime(Sys.time())*1000) %>%
     as.list
   DT <- rapply(values, utils::type.convert, classes = "character", how = "replace", as.is = TRUE) %>%
     rbind.data.frame %>%

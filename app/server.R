@@ -39,13 +39,12 @@ shinyServer(function(input, output, session){
   output$dbm <- renderPlot({
     invalidateLater(1000, session)
     update_data()
-    data[Time >= (max(Time) - 120.0)] %>%
+    data[Time >= (max(Time) - 120000.0)] %>%
       .[, yvar := get(input$plot_select)] %>%
-      ggvis(~Time*1000, ~yvar) %>%
-      layer_lines(stroke = ~factor(BSSID)) %>%
+      ggvis(~Time, ~yvar) %>%
       layer_points(fill = ~factor(BSSID), size = 0.5) %>%
+      layer_lines(stroke = ~factor(BSSID)) %>%
       scale_datetime("x", nice = "second", label = "Time (second)") %>%
-      #scale_numeric("x", label = "Time") %>%
       scale_numeric("y", expand = 0.25, nice = TRUE, label = plot_labeller(input$plot_select)[[1]]) %>% 
       add_legend("stroke", title = "Access points (BSSID)") %>%
       hide_legend("fill") %>%
