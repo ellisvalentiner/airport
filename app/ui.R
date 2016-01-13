@@ -19,14 +19,14 @@ shinyUI(dashboardPage(
     tabItems(
       tabItem(tabName = "dashboard",
               fluidRow(
-                box(title = h4("Current status"),
+                box(title = h3("Current status"),
                     width = 4,
                     tableOutput("get_info")),
                 
-                box(title = h4("Plot"),
+                box(title = h3("Plot"),
                     width = 8,
                     selectInput("plot_select",
-                                label = "",
+                                label = "Select variable:",
                                 choices = c("Signal" = "agrCtlRSSI",
                                             "Noise" = "agrCtlNoise",
                                             "Quality (SNR)" = "snr",

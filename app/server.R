@@ -39,54 +39,18 @@ shinyServer(function(input, output, session){
   output$dbm <- renderPlot({
     invalidateLater(1000, session)
     update_data()
-    data[, yvar := get(input$plot_select)] %>%
-      ggvis(~Time*60, ~yvar) %>%
+    data[Time >= (max(Time) - 120.0)] %>%
+      .[, yvar := get(input$plot_select)] %>%
+      ggvis(~Time*1000, ~yvar) %>%
       layer_lines(stroke = ~factor(BSSID)) %>%
-      layer_points(fill = ~factor(BSSID)) %>%
-      scale_datetime("x", nice = "second", label = "Time") %>%
-      scale_numeric("y", expand = 0.25, nice = TRUE, label = "dBm") %>% 
+      layer_points(fill = ~factor(BSSID), size = 0.5) %>%
+      scale_datetime("x", nice = "second", label = "Time (second)") %>%
+      #scale_numeric("x", label = "Time") %>%
+      scale_numeric("y", expand = 0.25, nice = TRUE, label = plot_labeller(input$plot_select)[[1]]) %>% 
       add_legend("stroke", title = "Access points (BSSID)") %>%
       hide_legend("fill") %>%
-      set_options(renderer = "svg") %>%
+      set_options(height = 400, renderer = "svg") %>%
       bind_shiny("dbm_plot")
   })
-  
-  output$hstgrm <- renderPlot({
-    invalidateLater(1000, session)
-    data[complete.cases(data)] %>%
-      data.frame %>% 
-      ggvis(~agrCtlRSSI) %>%
-      layer_histograms() %>%
-      set_options(height = 340, renderer = "svg") %>%
-    bind_shiny("hstgrm_plot")
-  })
-  
-#   output$Noise <- renderPlot({
-#     invalidateLater(1000, session)
-#     update_data()
-#     data[1:30] %>%
-#       ggvis(~1:30, ~agrCtlNoise) %>%
-#       layer_lines() %>%
-#       layer_points() %>%
-#       scale_numeric("x", domain = c(1, 30)) %>% 
-#       #scale_numeric("y", domain = c(-120, -40)) %>% 
-#       set_options(width = 600, height = 240, 
-#                  renderer = "canvas") %>%
-#       bind_shiny("noise_plot")
-#   })
-#   
-#   output$SNR <- renderPlot({
-#     invalidateLater(1000, session)
-#     update_data()
-#     data[1:10] %>%
-#       ggvis(~1:10, ~agrCtlRSSI/agrCtlNoise) %>%
-#       layer_lines() %>%
-#       layer_points() %>%
-#       scale_numeric("x", domain = c(1, 10)) %>% 
-#       #scale_numeric("y", domain = c(0, 1)) %>% 
-#       set_options(width = 900, height = 240, 
-#                   renderer = "canvas") %>%
-#       bind_shiny("snr_plot")
-#   })
 
 })
