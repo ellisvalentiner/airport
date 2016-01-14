@@ -1,8 +1,12 @@
 
 # Channel frequences in MHz lookup
 # from: http://www.radio-electronics.com/info/wireless/wi-fi/80211-channels-number-frequencies-bandwidth.php
-channelFrequencies <- data.table(wifi_channel = c(seq(1, 11), seq(36, 48, 4)),
-                                 MHz = c(seq(2412, 2462, 5), seq(5180, 5240, 20)))
+channelFrequencies <- data.table(wifi_channel = c(seq(1, 11),
+                                                  seq(36, 48, 4),
+                                                  seq(149, 165, 4)),
+                                 MHz = c(seq(2412, 2462, 5),
+                                         seq(5180, 5240, 20),
+                                         seq(5745, 5825, 20)))
 
 # Convert RSSI to distance in meters
 # from: http://stackoverflow.com/a/18359639/2643154
