@@ -17,10 +17,11 @@ shinyServer(function(input, output, session){
     data <<- rbind(perform_scan(), data, fill=TRUE)
   }
   
-  output$airport_perfs <- renderTable({
+  output$airport_prefs <- renderTable({
     # `$ airport prefs`
     # Get the current wireless preferences
-    # Assume the user isn't going to change these so don't update
+    # Assume the user isn't going to change these so don't update frequently
+    invalidateLater(5000, session)
     get_preferences()
   })
   
@@ -50,6 +51,12 @@ shinyServer(function(input, output, session){
       hide_legend("fill") %>%
       set_options(height = 400, renderer = "svg") %>%
       bind_shiny("dbm_plot")
+  })
+  
+  observe({
+    if(input$shutdown){
+      stopApp(0)
+    }
   })
 
 })

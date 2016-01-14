@@ -9,26 +9,40 @@ shinyUI(dashboardPage(
   dashboardSidebar(
     width = 250,
     sidebarMenu(
-      menuItem("Dashboard", tabName = "dashboard", icon = icon("dashboard")),
-      menuItem("Help", tabName = "help", icon = icon("question"))
-    )
+      menuItem(text = "Dashboard",
+               tabName = "dashboard",
+               icon = icon("dashboard")),
+      menuItem(text = "Help",
+               tabName = "help",
+               icon = icon("question"))
+    ),
+    actionButton(inputId = "shutdown",
+                 label = "Shutdown",
+                 icon = icon("close"),
+                 width = "100%",
+                 class="btn-warning"),
+    tags$style(type='text/css', "button#shutdown { position: absolute; bottom: 0; }")
   ),
   dashboardBody(
     tabItems(
       tabItem(tabName = "dashboard",
               fluidRow(
-                box(title = h3("Current status"),
+                tabBox(title = "Info Panel",
                     width = 4,
-                    tableOutput("get_info")),
-                
-                box(title = h3("Plot"),
+                    tabPanel("Current status",
+                             tableOutput("get_info")),
+                    tabPanel("Preferences",
+                             tableOutput("airport_prefs"))
+                    ),
+                box(title = "Plot Panel",
                     width = 8,
                     selectInput("plot_select",
                                 label = "Select variable:",
                                 choices = c("Signal" = "agrCtlRSSI",
                                             "Noise" = "agrCtlNoise",
                                             "Quality (SNR)" = "snr",
-                                            "Distance (meters)" = "distm")),
+                                            "Distance (meters)" = "distm"),
+                                width = "25%"),
                     HTML("<div style='height: 400px;'>"),
                     ggvisOutput("dbm_plot"),
                     plotOutput("dbm"),
