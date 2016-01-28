@@ -20,4 +20,4 @@ Quality is based on the signal-to-noise ratio (SNR).
 
 ### Distance
 
-Documentation here.
+Documentation here. Include formula in LaTeX.
