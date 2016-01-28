@@ -15,7 +15,9 @@ shinyServer(function(input, output, session){
 
   # Update data
   update_data <- function(){
-    data <<- rbindlist(list(perform_scan(), data), fill=TRUE)
+    try({
+      data <<- rbindlist(list(perform_scan(), data), fill=TRUE)
+    })
   }
   
   output$airport_prefs <- renderTable({
@@ -52,9 +54,11 @@ shinyServer(function(input, output, session){
       .[, yvar := get(input$plot_select)] %>%
       ggvis(~Time, ~yvar) %>%
       layer_points(size = 0.5) %>%
+      #group_by(BSSID) %>%
+      #layer_paths() %>%
       scale_datetime("x", nice = "second", label = "Time (second)") %>%
       scale_numeric("y", expand = 0.25, nice = TRUE, label = plot_labeller(input$plot_select)[[1]]) %>% 
-      #add_legend("stroke", title = "Access points (BSSID)") %>%
+      add_legend("stroke", title = "Access points (BSSID)") %>%
       #hide_legend("fill") %>%
       set_options(height = 400, renderer = "svg") %>%
       bind_shiny("dbm_plot")
