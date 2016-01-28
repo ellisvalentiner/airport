@@ -8,8 +8,16 @@ The maximum received signal power of a wireless network (802.ll) is about -10 dB
 
 ### Received Signal Strength Indicator (RSSI)
 
+Received signal strength indicator is a measure of the signal strength as measured by the receiving device.
+
 ### Noise
+
+Documentation here.
 
 ### Quality
 
 Quality is based on the signal-to-noise ratio (SNR).
+
+### Distance
+
+Documentation here. Include formula in LaTeX.
