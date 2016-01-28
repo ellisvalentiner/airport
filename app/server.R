@@ -7,6 +7,7 @@ library(magrittr)
 rm(list = ls(all.names = TRUE))
 
 source(file = "../functions/foo.R")
+source(file = "../functions/scan.R")
 
 data <- perform_scan()
 
@@ -14,7 +15,7 @@ shinyServer(function(input, output, session){
 
   # Update data
   update_data <- function(){
-    data <<- rbind(perform_scan(), data, fill=TRUE)
+    data <<- rbindlist(list(perform_scan(), data), fill=TRUE)
   }
   
   output$airport_prefs <- renderTable({
@@ -28,27 +29,33 @@ shinyServer(function(input, output, session){
   output$get_info <- renderTable({
     # `$ airport --getinfo`
     # Display current status
-    invalidateLater(1000, session)
+    invalidateLater(2000, session)
     data[1,] %>% t
   }, include.colnames = FALSE)
   
   output$current_time <- renderText({
-    invalidateLater(1000, session)
+    invalidateLater(2000, session)
     format(Sys.time(), "%d %h %Y %H:%M:%S")
   })
   
+  output$networks <- renderUI({
+    selectInput("network_select",
+                label = "Choose network:",
+                choices =data[,sort(unique(SSID_STR))],
+                width = "45%")
+  })
+  
   output$dbm <- renderPlot({
-    invalidateLater(1000, session)
+    invalidateLater(2000, session)
     update_data()
-    data[Time >= (max(Time) - 120000.0)] %>%
+    data[(Time >= (max(Time) - 120000.0)) & (SSID_STR == input$network_select)] %>%
       .[, yvar := get(input$plot_select)] %>%
       ggvis(~Time, ~yvar) %>%
-      layer_points(fill = ~factor(BSSID), size = 0.5) %>%
-      layer_lines(stroke = ~factor(BSSID)) %>%
+      layer_points(size = 0.5) %>%
       scale_datetime("x", nice = "second", label = "Time (second)") %>%
       scale_numeric("y", expand = 0.25, nice = TRUE, label = plot_labeller(input$plot_select)[[1]]) %>% 
-      add_legend("stroke", title = "Access points (BSSID)") %>%
-      hide_legend("fill") %>%
+      #add_legend("stroke", title = "Access points (BSSID)") %>%
+      #hide_legend("fill") %>%
       set_options(height = 400, renderer = "svg") %>%
       bind_shiny("dbm_plot")
   })

@@ -1,3 +1,4 @@
+library(data.table)
 
 # Channel frequences in MHz lookup
 # from: http://www.radio-electronics.com/info/wireless/wi-fi/80211-channels-number-frequencies-bandwidth.php
@@ -20,37 +21,37 @@ rssi_to_meters <- function(dBm, channel){
     return
 }
 
-get_preferences <- function(){
-  prefs <- system2("airport", "prefs", stdout=TRUE) %>%
-    .[3:10] %>%
-    strsplit("=") %>%
-    do.call(rbind, .)
-  colnames(prefs) <- c("Key", "Value")
-  return(prefs)
-}
+# get_preferences <- function(){
+#   prefs <- system2("airport", "prefs", stdout=TRUE) %>%
+#     .[3:10] %>%
+#     strsplit("=") %>%
+#     do.call(rbind, .)
+#   colnames(prefs) <- c("Key", "Value")
+#   return(prefs)
+# }
 
-perform_scan <- function(){
-  x <- system2("airport", "-I", stdout=TRUE) %>%
-    gsub("^\\s+|$\\s+", "", .) %>%
-    strsplit(., ":")
-  keys = sapply(x, '[', 1) %>%
-    make.names %>%
-    c(., "Time")
-  values = sapply(x, '[', -1) %>%
-    lapply(., paste, collapse=":") %>% 
-    gsub("^\\s+|$\\s+", "", .) %>%
-    c(., as.ITime(Sys.time())*1000) %>%
-    as.list
-  DT <- rapply(values, utils::type.convert, classes = "character", how = "replace", as.is = TRUE) %>%
-    rbind.data.frame %>%
-    data.table
-  setnames(DT, names(DT), keys)
-  DT[, snr := agrCtlRSSI / agrCtlNoise]
-  DT[, distm := rssi_to_meters(agrCtlRSSI, channel)]
-  return(DT)
-}
+# perform_scan <- function(){
+#   x <- system2("airport", "-I", stdout=TRUE) %>%
+#     gsub("^\\s+|$\\s+", "", .) %>%
+#     strsplit(., ":")
+#   keys = sapply(x, '[', 1) %>%
+#     make.names %>%
+#     c(., "Time")
+#   values = sapply(x, '[', -1) %>%
+#     lapply(., paste, collapse=":") %>% 
+#     gsub("^\\s+|$\\s+", "", .) %>%
+#     c(., as.ITime(Sys.time())*1000) %>%
+#     as.list
+#   DT <- rapply(values, utils::type.convert, classes = "character", how = "replace", as.is = TRUE) %>%
+#     rbind.data.frame %>%
+#     data.table
+#   setnames(DT, names(DT), keys)
+#   DT[, snr := agrCtlRSSI / agrCtlNoise]
+#   DT[, distm := rssi_to_meters(agrCtlRSSI, channel)]
+#   return(DT)
+# }
 
 plot_labeller <- function(x){
-  c("agrCtlRSSI"="db", "agrCtlNoise"="db", "snr"="S/N", "distm"="meters")[x] %>%
+  c("RSSI"="db", "NOISE"="db", "snr"="S/N", "distm"="meters")[x] %>%
     return
 }
