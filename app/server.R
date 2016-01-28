@@ -31,12 +31,12 @@ shinyServer(function(input, output, session){
   output$get_info <- renderTable({
     # `$ airport --getinfo`
     # Display current status
-    invalidateLater(2000, session)
+    invalidateLater(5000, session)
     data[1,] %>% t
   }, include.colnames = FALSE)
   
   output$current_time <- renderText({
-    invalidateLater(2000, session)
+    invalidateLater(5000, session)
     format(Sys.time(), "%d %h %Y %H:%M:%S")
   })
   
@@ -48,17 +48,15 @@ shinyServer(function(input, output, session){
   })
   
   output$dbm <- renderPlot({
-    invalidateLater(2000, session)
+    invalidateLater(5000, session)
     update_data()
     data[(Time >= (max(Time) - 120000.0)) & (SSID_STR == input$network_select)] %>%
       .[, yvar := get(input$plot_select)] %>%
-      ggvis(~Time, ~yvar) %>%
+      ggvis(~Time, ~yvar, fill = ~BSSID, stroke = ~BSSID) %>%
       layer_points(size = 0.5) %>%
-      #group_by(BSSID) %>%
-      #layer_paths() %>%
       scale_datetime("x", nice = "second", label = "Time (second)") %>%
       scale_numeric("y", expand = 0.25, nice = TRUE, label = plot_labeller(input$plot_select)[[1]]) %>% 
-      add_legend("stroke", title = "Access points (BSSID)") %>%
+      #add_legend("stroke", title = "Access points (BSSID)") %>%
       #hide_legend("fill") %>%
       set_options(height = 400, renderer = "svg") %>%
       bind_shiny("dbm_plot")

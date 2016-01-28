@@ -9,7 +9,8 @@ perform_scan <- function(){
     data.table
   x[, Time := Sys.time()]
   #x[, snr := RSSI / NOISE]
-  #x[, distm := rssi_to_meters(RSSI, CHANNEL)]
+  x[, idx := .I][, snr := sapply(RSSI/NOISE, function(x) max(min(x, 1), 0)), by="idx"]
+  x[, distm := rssi_to_meters(RSSI, CHANNEL), by="idx"][, idx := NULL]
   return(x)
 }
 

@@ -28,4 +28,4 @@ where $F$ is the frequency in MHz, $S$ is the signal strength, and $m$ is distan
 
 Each channel operates on a different frequency (e.g. channel 1 has a center frequency of 2412 and ranges from 2401 to 2423) so I employ a lookup table to find the center frequency for the particular channel ([reference](http://www.radio-electronics.com/info/wireless/wi-fi/80211-channels-number-frequencies-bandwidth.php)).
 
-It should be noted that FSPL is based on _line of sight_ and WiFi signals are almost never unobstructed so distance estimates may be especially
+It should be noted that FSPL is based on _line of sight_ and WiFi signals are almost never unobstructed so distance estimates may be especially wrong.
