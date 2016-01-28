@@ -62,6 +62,30 @@ shinyServer(function(input, output, session){
       bind_shiny("dbm_plot")
   })
   
+#   output$reproject <- renderPlot({
+#     invalidateLater(5000, session)
+#     update_data()
+#     x <- dcast(data, BSSID + SSID_STR ~ Time, value.var = "distm")
+#     nams <- x$SSID_STR
+#     d <- x[complete.cases(x), !c("BSSID", "SSID_STR"), with=FALSE] %>%
+#       dist(., method = "euclidean", upper = TRUE)
+#     k <- cmdscale(d, k = 2)
+#     plot(k, asp=1, las=1)
+#     text(k, nams)
+#   })
+  output$reproject <- renderTable({
+    invalidateLater(5000, session)
+    update_data()
+    x <- dcast(data, BSSID + SSID_STR ~ Time, value.var = "distm")
+    nams <- x$SSID_STR
+    d <- x[complete.cases(x), !c("BSSID", "SSID_STR"), with=FALSE] %>%
+      dist(., method = "euclidean", upper = TRUE) %>%
+      as.matrix
+    #rownames(d) = x$BSSID
+    #colnames(d) = x$BSSID
+    print(d)
+  })
+  
   observe({
     if(input$shutdown){
       stopApp(0)
