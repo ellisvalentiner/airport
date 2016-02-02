@@ -12,8 +12,8 @@ shinyUI(dashboardPage(
       menuItem(text = "Dashboard",
                tabName = "dashboard",
                icon = icon("dashboard")),
-      menuItem(text = "Reprojection",
-               tabName = "reprojection"),
+#       menuItem(text = "Reprojection",
+#                tabName = "reprojection"),
       menuItem(text = "Help",
                tabName = "help",
                icon = icon("question"))
@@ -52,17 +52,17 @@ shinyUI(dashboardPage(
                     HTML("</div>"))
                 )
               ),
-      tabItem(tabName = "reprojection",
-              fluidRow(
-                box(title = "Multidimensional Scaling",
-                    width = 8,
-                    #HTML("<div style='height: 400px;'>"),
-                    #ggvisOutput("reproject_plot"),
-                    tableOutput("reproject")
-                    #HTML("</div>")
-                    )
-              )
-      ),
+#       tabItem(tabName = "reprojection",
+#               fluidRow(
+#                 box(title = "Multidimensional Scaling",
+#                     width = 8,
+#                     #HTML("<div style='height: 400px;'>"),
+#                     #ggvisOutput("reproject_plot"),
+#                     tableOutput("reproject")
+#                     #HTML("</div>")
+#                     )
+#               )
+#       ),
       tabItem(tabName = "help",
               fluidRow(
                 includeMarkdown("assets/help.md")

@@ -24,19 +24,19 @@ shinyServer(function(input, output, session){
     # `$ airport prefs`
     # Get the current wireless preferences
     # Assume the user isn't going to change these so don't update frequently
-    invalidateLater(5000, session)
+    invalidateLater(1000, session)
     get_preferences()
   })
   
   output$get_info <- renderTable({
     # `$ airport --getinfo`
     # Display current status
-    invalidateLater(5000, session)
+    invalidateLater(1000, session)
     data[1,] %>% t
   }, include.colnames = FALSE)
   
   output$current_time <- renderText({
-    invalidateLater(5000, session)
+    invalidateLater(1000, session)
     format(Sys.time(), "%d %h %Y %H:%M:%S")
   })
   
@@ -48,7 +48,7 @@ shinyServer(function(input, output, session){
   })
   
   output$dbm <- renderPlot({
-    invalidateLater(5000, session)
+    invalidateLater(1000, session)
     update_data()
     data[(Time >= (max(Time) - 120000.0)) & (SSID_STR == input$network_select)] %>%
       .[, yvar := get(input$plot_select)] %>%
@@ -73,18 +73,18 @@ shinyServer(function(input, output, session){
 #     plot(k, asp=1, las=1)
 #     text(k, nams)
 #   })
-  output$reproject <- renderTable({
-    invalidateLater(5000, session)
-    update_data()
-    x <- dcast(data, BSSID + SSID_STR ~ Time, value.var = "distm")
-    nams <- x$SSID_STR
-    d <- x[complete.cases(x), !c("BSSID", "SSID_STR"), with=FALSE] %>%
-      dist(., method = "euclidean", upper = TRUE) %>%
-      as.matrix
-    #rownames(d) = x$BSSID
-    #colnames(d) = x$BSSID
-    print(d)
-  })
+#   output$reproject <- renderTable({
+#     invalidateLater(1000, session)
+#     update_data()
+#     x <- dcast(data, BSSID + SSID_STR ~ Time, value.var = "distm")
+#     nams <- x$SSID_STR
+#     d <- x[complete.cases(x), !c("BSSID", "SSID_STR"), with=FALSE] %>%
+#       dist(., method = "euclidean", upper = TRUE) %>%
+#       as.matrix
+#     #rownames(d) = x$BSSID
+#     #colnames(d) = x$BSSID
+#     print(d)
+#   })
   
   observe({
     if(input$shutdown){
