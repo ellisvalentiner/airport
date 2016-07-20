@@ -1,0 +1,151 @@
+---
+title: "WiFi Dashboard"
+output: 
+  flexdashboard::flex_dashboard:
+    orientation: rows
+    vertical_layout: scroll
+  runtime: shiny
+runtime: shiny
+---
+
+```{r setup, include=FALSE}
+library(shiny)
+library(flexdashboard)
+library(dplyr)
+library(magrittr)
+library(lubridate)
+
+# Channel frequences in MHz lookup
+# from: http://www.radio-electronics.com/info/wireless/wi-fi/80211-channels-number-frequencies-bandwidth.php
+channelFrequencies <- data.frame(wifi_channel = c(seq(1, 11),
+                                            seq(36, 48, 4),
+                                            seq(100, 140, 4),
+                                            seq(149, 165, 4)),
+                                 MHz = c(seq(2412, 2462, 5),
+                                         seq(5180, 5240, 20),
+                                         seq(5500, 5700, 20),
+                                         seq(5745, 5825, 20)))
+
+# Convert RSSI to distance in meters
+# from: http://stackoverflow.com/a/18359639/2643154
+# and also: http://www.rapidtables.com/electric/decibel.htm
+rssi_to_meters <- function(dBm, channel){
+  if (is.factor(channel)){
+    channel <- channel %>% 
+      as.character(.) %>% 
+      strsplit(., ",") %>% 
+      extract2(1) %>% 
+      extract(1) %>% 
+      as.numeric
+  }
+  
+  MHz <- channelFrequencies %>%
+    filter(wifi_channel==channel) %>%
+    select(MHz)
+  
+  10^((27.55 - (20 * log(MHz, base=10)) + abs(dBm))/20) %>%
+    return
+}
+
+
+#` getinfo
+getinfo <- function(){
+  info <- system2("airport", "-I", stdout=TRUE) %>%
+    gsub("^\\s+|$\\s+", "", .) %>%
+    strsplit(., ":")
+  
+  keys <- sapply(info, '[', 1) %>%
+    make.names %>%
+    c(., "Time")
+  
+  values <- sapply(info, '[', -1) %>%
+    lapply(., paste, collapse=":") %>% 
+    gsub("^\\s+|$\\s+", "", .) %>%
+    c(., now()) %>%
+    as.list
+  
+  DT <- rapply(values, utils::type.convert, classes = "character", how = "replace", as.is = TRUE) %>%
+    rbind.data.frame %>%
+    as.tbl()
+  
+  colnames(DT) <- keys
+  
+  DT <- DT %>% mutate(
+    snr = agrCtlRSSI / agrCtlNoise,
+    distm = rssi_to_meters(agrCtlRSSI, channel)
+  )
+  return(DT)
+}
+```
+
+Sidebar {.sidebar data-width=200}
+=======================================================================
+
+insert sidebar content
+
+Page
+=======================================================================
+
+Row
+-----------------------------------------------------------------------
+
+### SSID {.value-box}
+
+```{r}
+signals <- getinfo()
+renderValueBox({
+  value = {signals %>% select(SSID)}
+})
+```
+
+### RSSI {.value-box}
+
+```{r}
+signals <- getinfo()
+renderValueBox({
+  value = {signals %>% select(agrCtlRSSI) %>% as.character(.)}
+})
+```
+
+### Noise {.value-box}
+
+```{r}
+signals <- getinfo()
+renderValueBox({
+  value = {signals %>% select(agrCtlNoise) %>% as.character(.)}
+})
+```
+
+### Channel {.value-box}
+
+```{r}
+signals <- getinfo()
+renderValueBox({
+  value = {signals %>% select(channel) %>% as.character(.)}
+})
+```
+
+Column {data-width=650}
+-----------------------------------------------------------------------
+
+### Chart A
+
+```{r}
+
+```
+
+Column {data-width=350}
+-----------------------------------------------------------------------
+
+### Chart B
+
+```{r}
+
+```
+
+### Chart C
+
+```{r}
+
+```
+
